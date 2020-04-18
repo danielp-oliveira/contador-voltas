@@ -1,48 +1,57 @@
 import React, { useState, useEffect } from "react"
 
-const MostraVoltas = (props) => {
-  return (
-    <p>
-      {props.voltas} <br /> Voltas
-    </p>
-  )
-}
+import Botao from "./components/Botao"
+import MostraTempo from "./components/MostraTempo"
+import MostraVoltas from "./components/MostraVoltas"
 
-const MostraTempo = (props) => {
-  return (
-    <p>
-      {props.tempo} <br />
-      Tempo médio por volta
-    </p>
-  )
-}
-
-const Button = (props) => <button onClick={props.onClick}>{props.text}</button>
+import "./global.css"
 
 function App() {
-  const [numVoltas, setNumVoltas] = useState(10)
+  const [numVoltas, setNumVoltas] = useState(0)
+  const [rodando, setRodando] = useState(false)
   const [tempo, setTempo] = useState(0)
 
   useEffect(() => {
-    setInterval(() => {}, 1000)
-  }, [])
+    let temporizador = null
+    if (rodando) {
+      temporizador = setInterval(() => {
+        setTempo((anterior) => anterior + 1)
+      }, 1000)
+    }
+    return () => {
+      if (temporizador) {
+        clearInterval(temporizador)
+      }
+    }
+  }, [rodando])
 
-  const increment = () => {
+  const toggleRunning = () => {
+    setRodando(!rodando)
+  }
+
+  const incrementar = () => {
     setNumVoltas(numVoltas + 1)
   }
 
-  const decrement = () => {
-    setNumVoltas(numVoltas - 1)
+  const decrementar = () => {
+    if (numVoltas > 0) {
+      setNumVoltas(numVoltas - 1)
+    }
+  }
+
+  const resetar = () => {
+    setNumVoltas(0)
+    setTempo(0)
   }
 
   return (
     <div className="App">
       <MostraVoltas voltas={numVoltas} />
-      <Button text="+" onClick={increment} />
-      <Button text="-" onClick={decrement} />
-      <MostraTempo tempo={tempo} />
-      <Button text="Iniciar" />
-      <Button text="Reiniciar" />
+      <Botao texto="+" className="bigger" onClick={incrementar} />
+      <Botao texto="-" className="bigger" onClick={decrementar} />
+      {numVoltas > 0 && <MostraTempo tempo={Math.round(tempo / numVoltas)} />}
+      <Botao texto={rodando ? "Pausar" : "Iniciar"} onClick={toggleRunning} />
+      <Botao texto="Reiniciar" onClick={resetar} />
     </div>
   )
 }
